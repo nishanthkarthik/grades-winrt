@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
@@ -37,48 +35,20 @@ namespace GradeSharp
                 return;
             }
             ProgressRing.IsActive = true;
-            HttpResponseMessage httpResponse = await AttemptLoginClient();
+            HttpResponsePack httpResponse = await AttemptLoginClient();
             ProgressRing.IsActive = false;
-            if (httpResponse.RequestMessage.RequestUri.AbsoluteUri == "https://www.iitm.ac.in/viewgrades/student.html")
+            if (httpResponse.Response.RequestMessage.RequestUri.AbsoluteUri == "https://www.iitm.ac.in/viewgrades/student.html")
             {
                 Notify("Wrong credentials", "Please try again with valid credentials");
                 return;
             }
-            if (httpResponse.RequestMessage.RequestUri.AbsoluteUri == "https://www.iitm.ac.in/viewgrades/studentauth/studpass.php")
+            if (httpResponse.Response.RequestMessage.RequestUri.AbsoluteUri == "https://www.iitm.ac.in/viewgrades/studentauth/studpass.php")
             {
                 Frame.Navigate(typeof(GradePage), httpResponse);
             }
         }
 
-        async Task<WebResponse> AttemptLogin()
-        {
-            try
-            {
-                var webRequest = WebRequest.Create("https://www.iitm.ac.in/viewgrades/studentauth/login.php");
-                webRequest.Method = "POST";
-                webRequest.ContentType = "application/x-www-form-urlencoded";
-                webRequest.Proxy = null;
-                using (var writer = new StreamWriter(await webRequest.GetRequestStreamAsync()))
-                {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.Append("rollno=");
-                    stringBuilder.Append(Uri.EscapeDataString(RollBox.Text));
-                    stringBuilder.Append("&pwd=");
-                    stringBuilder.Append(Uri.EscapeDataString(PasswordBox.Password));
-                    stringBuilder.Append("submit=Submit");
-                    await writer.WriteAsync(stringBuilder.ToString());
-                }
-                WebResponse loginResponse = await webRequest.GetResponseAsync();
-                return loginResponse;
-            }
-            catch (Exception exception)
-            {
-                Notify("Exception", exception.Message);
-                throw;
-            }
-        }
-
-        async Task<HttpResponseMessage> AttemptLoginClient()
+        async Task<HttpResponsePack> AttemptLoginClient()
         {
             try
             {
@@ -88,10 +58,13 @@ namespace GradeSharp
                     new KeyValuePair<string, string>("pwd", PasswordBox.Password),
                     new KeyValuePair<string, string>("submit", "Submit")
                 };
+                CookieContainer cookieContainer = new CookieContainer();
                 HttpContent httpContent = new FormUrlEncodedContent(keyValuePairs);
-                HttpClient httpClient = new HttpClient();
+                HttpClient httpClient = new HttpClient(new HttpClientHandler() { CookieContainer = cookieContainer });
                 HttpResponseMessage response = await httpClient.PostAsync("https://www.iitm.ac.in/viewgrades/studentauth/login.php", httpContent);
-                return response;
+                string temp = await response.Content.ReadAsStringAsync();
+                HttpResponsePack httpResponsePack = new HttpResponsePack() { Cookie = cookieContainer, Response = response };
+                return httpResponsePack;
             }
             catch (Exception exception)
             {

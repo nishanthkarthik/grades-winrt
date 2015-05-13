@@ -108,6 +108,7 @@
     <Compile Include="GradePage.xaml.cs">
       <DependentUpon>GradePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HttpResponsePack.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
