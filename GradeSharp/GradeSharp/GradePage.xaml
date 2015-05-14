@@ -22,6 +22,7 @@
         </Grid.ColumnDefinitions>
         <TextBlock Text="Grades" Margin="15" Grid.Row="0" Grid.Column="0" Foreground="LightGray" Style="{StaticResource SubheaderTextBlockStyle}" VerticalAlignment="Center"/>
         <TextBlock Text="DefaultName" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Margin="15" Style="{StaticResource HeaderTextBlockStyle}" Foreground="WhiteSmoke"/>
+        <ProgressRing x:Name="ProgressCircle" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Height="50" Width="50" Foreground="WhiteSmoke"/>
         <ListView x:Name="CourseList" Grid.Row="1" Grid.Column="0" Height="75" SelectionMode="Single" Margin="10"/>
     </Grid>
 </Page>

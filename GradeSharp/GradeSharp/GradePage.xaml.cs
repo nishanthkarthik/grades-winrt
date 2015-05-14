@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using HtmlAgilityPack;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -27,10 +28,14 @@ namespace GradeSharp
 
         async void GradePage_Loaded(object sender, RoutedEventArgs e)
         {
+            ProgressCircle.IsActive = true;
             HttpResponseMessage gradeResponse = await RetrieveGrade();
-            CookieCollection cookie = _cookie.GetCookies(new Uri("http://www.iitm.ac.in", UriKind.Absolute));
             string gradeSrc = await gradeResponse.Content.ReadAsStringAsync();
+            HtmlDocument htmlDocument = new HtmlDocument();
+            htmlDocument.LoadHtml(gradeSrc);
+            var res = htmlDocument.DocumentNode.Descendants().Where(x => x.OriginalName == "table");
 
+            ProgressCircle.IsActive = false;
         }
 
         private async Task<HttpResponseMessage> RetrieveGrade()
